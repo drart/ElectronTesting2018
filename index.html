@@ -5,6 +5,9 @@
         <!--link rel="stylesheet" type="text/css" media="all" href="osc-view.css"></link-->
         <meta charset="UTF-8" />
 	<script>window.$ = window.jQuery = require('jquery');</script>
+	<script src="./node_modules/flocking/dist/flocking-all.js"></script>
+	<script src="./node_modules/p5/lib/p5.js"></script>
+	<script src="./node_modules/p5/lib/addons/p5.sound.js"></script>
         <script type="text/javascript">
 	    var osc = require("osc");
             var port = new osc.WebSocketPort({
@@ -31,8 +34,21 @@
             <p id="messageLabel">OSC Message:</p>
             <pre id="message"></pre>
         </div>
+	<script>
+
+		flock.init();
+		var synth = flock.synth({
+			synthDef:{
+				ugen: "flock.ugen.dust",
+				density: 50,
+				mul: 0.25
+			}
+		});
+                synth.play();
+	</script>
 
         <button onclick="sayHello()">Send OSC message</button>
+        <script src="sketch.js"></script>
     </body>
 </html>
 
