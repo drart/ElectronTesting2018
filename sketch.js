@@ -1,43 +1,60 @@
-var osc;
-var lp; 
-var rev;
-var revmix; 
-var amplitude;
+flock.init()
+
+
+var synth = flock.synth({
+	synthDef:{
+		ugen: "flock.ugen.freeverb",
+		mix: 0.5,
+		room: 0.75,
+		damp: 0.9,
+		source: {
+			ugen : "flock.ugen.dust",
+			id: "dusty",
+			density: 50,
+			mul: 0.25
+		}
+	}
+});
+
+var kick = flock.synth({
+    synthDef: {
+        ugen: "flock.ugen.sinOsc",
+	id: "kicky",
+        freq: 200,
+        mul: {
+            ugen: "flock.ugen.envGen",
+            envelope: {
+                type: "flock.envelope.adsr",
+		attack: 0.01,
+                decay: 0.5,
+                sustain: 0,
+                release: 0,
+            },
+            mul: 0.25
+        }
+    }
+});
+
+
 function setup() {
-    var canvas = createCanvas(500,500);
-    osc = new p5.Oscillator();
-    osc.freq(200);
-    osc.amp(0); 
-    osc.setType("sawtooth");
-
-    lp = new p5.LowPass();
-    lp.freq(200);
-    //lp.res(1);
-
-    osc.disconnect();
-    osc.connect(lp);
-    osc.start();
-
-    rev = new p5.Reverb;
-    rev.set(5, 1);
-    lp.connect(rev);
-
-    amplitude = new p5.Amplitude();
+    var canvas = createCanvas(300,300);
+	synth.play();
+	kick.play();
 }
 
 function draw() {
   background(0);
   fill(255);
-  var level = amplitude.getLevel();
-  var size = map(level, 0, 1, 0, 200);
-  ellipse(width/2, height/2, size, size);
-  rev.drywet(0.5);
+  ellipse(mouseX, mouseY, 10, 10);
+  synth.set("dusty.density", mouseX);
+  synth.set("dusty.mul", 1 - (mouseY/height));
+  kick.set("kicky.freq", mouseY + 100);
 }
 
-function touchStarted() {
-  osc.amp(0.5, 0.02);
+function mousePressed(){
+    kick.set("kicky.mul.gate", 1);
 }
 
-function touchEnded(){
-   osc.amp(0, 0.1);
+function mouseReleased(){
+    kick.set("kicky.mul.gate", 0);
 }
