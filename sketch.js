@@ -1,5 +1,10 @@
 flock.init()
-
+var as = flock.environment.audioSystem;
+var analyser = as.context.createAnalyser();
+as.nativeNodeManager.outputNode.connect(analyser);
+//analyser.fftSize = 2048;
+var bufferLength = analyser.frequencyBinCount;
+var dataArray = new Uint8Array(bufferLength);
 
 var synth = flock.synth({
 	synthDef:{
@@ -37,7 +42,7 @@ var kick = flock.synth({
 
 
 function setup() {
-    var canvas = createCanvas(300,300);
+    var canvas = createCanvas(512,300);
 	synth.play();
 	kick.play();
 }
@@ -45,10 +50,16 @@ function setup() {
 function draw() {
   background(0);
   fill(255);
+  stroke(255);
   ellipse(mouseX, mouseY, 10, 10);
   synth.set("dusty.density", mouseX);
   synth.set("dusty.mul", 1 - (mouseY/height));
   kick.set("kicky.freq", mouseY + 100);
+
+  analyser.getByteFrequencyData(dataArray);
+  for (var i = 0 ; i < width; i++){
+ 	line(i, height, i, height - dataArray[i]); 
+  }
 }
 
 function mousePressed(){
